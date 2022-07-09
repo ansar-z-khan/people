@@ -11,7 +11,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>bfl</depend>
+  <depend>liborocos-bfl-dev</depend>
   <depend>geometry_msgs</depend>
   <depend>message_filters</depend>
   <depend>people_msgs</depend>
