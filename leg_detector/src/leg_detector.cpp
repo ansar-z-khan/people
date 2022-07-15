@@ -170,6 +170,7 @@ public:
       reliability += k * (probability - reliability);
       p *= (1 - k);
     }
+
   }
 
   double getLifetime()
@@ -260,6 +261,7 @@ public:
   bool publish_legs_, publish_people_, publish_leg_markers_, publish_people_markers_;
   int next_p_id_;
   double leg_reliability_limit_;
+  double max_reliability_ = -1;
   int min_points_per_group;
 
   ros::Publisher people_measurements_pub_;
@@ -861,14 +863,15 @@ public:
     int i = 0;
     std::vector<people_msgs::PositionMeasurement> people;
     std::vector<people_msgs::PositionMeasurement> legs;
-
     for (std::list<SavedFeature*>::iterator sf_iter = saved_features_.begin();
          sf_iter != saved_features_.end();
          sf_iter++, i++)
     {
       // reliability
-      double reliability = (*sf_iter)->getReliability();
-
+      double reliability = -(*sf_iter)->getReliability();
+      max_reliability_ = std::max(reliability, max_reliability_);
+      ROS_WARN("Current Reliability %f", reliability);
+      ROS_WARN("Max Reliability %f", max_reliability_);
       if ((*sf_iter)->getReliability() > leg_reliability_limit_
           && publish_legs_)
       {
@@ -913,13 +916,13 @@ public:
         m.lifetime = ros::Duration(0.5);
         if ((*sf_iter)->object_id != "")
         {
-          m.color.r = 1;
+          //m.color.r = 1;
         }
         else
         {
-          m.color.b = (*sf_iter)->getReliability();
+          
         }
-
+        m.color.b = reliability/max_reliability_;
         markers_pub_.publish(m);
       }
 
